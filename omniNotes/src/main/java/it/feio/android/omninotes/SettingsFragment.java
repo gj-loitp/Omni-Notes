@@ -153,17 +153,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     if (export != null) {
       export.setSummary(BackupHelper.getBackupFolderPath());
       export.setOnPreferenceClickListener(arg0 -> {
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-          try {
-            scopedStorageFolderChoosen();
-            exportNotes();
-          } catch (ExternalStorageProviderException e) {
-            startIntentForScopedStorage(ACCESS_DATA_FOR_EXPORT);
-          }
-        } else {
-          PermissionsHelper.requestPermission(getActivity(), permission.WRITE_EXTERNAL_STORAGE,
-              R.string.permission_external_storage, getActivity().findViewById(R.id.crouton_handle),
-              this::exportNotes);
+        try {
+          scopedStorageFolderChoosen();
+          exportNotes();
+        } catch (ExternalStorageProviderException e) {
+          startIntentForScopedStorage(ACCESS_DATA_FOR_EXPORT);
         }
         return false;
       });
@@ -176,33 +170,23 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         importData.setSummary(getString(R.string.settings_import_summary));
       }
       importData.setOnPreferenceClickListener(arg0 -> {
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-          DocumentFileCompat backupFolder;
-          try {
-            backupFolder = scopedStorageFolderChoosen();
-            importNotes(backupFolder);
-          } catch (ExternalStorageProviderException e) {
-            startIntentForScopedStorage(ACCESS_DATA_FOR_IMPORT);
-          }
-        } else {
-          PermissionsHelper
-              .requestPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE, R
-                      .string.permission_external_storage,
-                  getActivity().findViewById(R.id.crouton_handle), this::importNotes);
+        try {
+          var backupFolder = scopedStorageFolderChoosen();
+          importNotes(backupFolder);
+        } catch (ExternalStorageProviderException e) {
+          startIntentForScopedStorage(ACCESS_DATA_FOR_IMPORT);
         }
         return false;
       });
     }
 
-    if (VERSION.SDK_INT >= VERSION_CODES.O) {
-      Preference changeBackupFolder = findPreference("settings_change_backup_folder");
-      if (changeBackupFolder != null) {
-        changeBackupFolder.setVisible(true);
-        changeBackupFolder.setOnPreferenceClickListener(arg0 -> {
-          startIntentForScopedStorage(ACCESS_DATA_FOR_IMPORT);
-          return false;
-        });
-      }
+    Preference changeBackupFolder = findPreference("settings_change_backup_folder");
+    if (changeBackupFolder != null) {
+      changeBackupFolder.setVisible(true);
+      changeBackupFolder.setOnPreferenceClickListener(arg0 -> {
+        startIntentForScopedStorage(ACCESS_DATA_FOR_IMPORT);
+        return false;
+      });
     }
 
 //		// Autobackup feature integrity check
@@ -384,7 +368,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
               + languageName.substring(1));
       lang.setOnPreferenceChangeListener((preference, value) -> {
         LanguageHelper.updateLanguage(getActivity(), value.toString());
-        SystemHelper.restartApp(getActivity().getApplicationContext(), MainActivity.class);
+        SystemHelper.restartApp();
         return false;
       });
     }
@@ -528,7 +512,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
               File cacheDir = StorageHelper.getCacheDir(getActivity());
               StorageHelper.delete(getActivity(), cacheDir.getAbsolutePath());
               Prefs.edit().clear().apply();
-              SystemHelper.restartApp(getActivity().getApplicationContext(), MainActivity.class);
+              SystemHelper.restartApp();
             }).build().show();
 
         return false;

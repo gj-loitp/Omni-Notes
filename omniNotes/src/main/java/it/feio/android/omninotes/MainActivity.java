@@ -387,7 +387,7 @@ public class MainActivity extends BaseActivity implements
     }
 
     if (ACTION_RESTART_APP.equals(i.getAction())) {
-      SystemHelper.restartApp(getApplicationContext(), MainActivity.class);
+      SystemHelper.restartApp();
     }
 
     if (receivedIntent(i)) {
@@ -459,7 +459,8 @@ public class MainActivity extends BaseActivity implements
         || ACTION_WIDGET_TAKE_PHOTO.equals(i.getAction())
         || ((Intent.ACTION_SEND.equals(i.getAction())
         || Intent.ACTION_SEND_MULTIPLE.equals(i.getAction())
-        || INTENT_GOOGLE_NOW.equals(i.getAction()))
+        || INTENT_GOOGLE_NOW.equals(i.getAction())
+        || Intent.ACTION_PROCESS_TEXT.equals(i.getAction()))
         && i.getType() != null)
         || i.getAction().contains(ACTION_NOTIFICATION_CLICK);
   }
